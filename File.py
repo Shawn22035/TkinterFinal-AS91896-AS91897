@@ -1,4 +1,5 @@
 from tkinter import *
+from tkcalendar import *
 
 root = Tk()
 root.geometry("500x500")
@@ -24,16 +25,19 @@ def newpage():
     nameprint=Button(secondpage,
                      text="print",
                      command=done).pack()
+    
+    cal = Calendar(secondpage, selectmode="day", year = 2023, month = 5, day = 18).pack()
                 
+    invalid=Message("text didnt work")
 
-def threepage():
+def threepage(): 
     thirdpage =Toplevel(root)  
     thirdpage.geometry("500x500")
 
     another=Label(thirdpage,
                   text="something else").pack()
 
-page1 = Button(text="Heres a button for a page",command=newpage).pack()
+page = Button(text="Heres a button for a page",command=newpage).pack()
 
 page2 = Button(text="This is a second page",command=threepage).pack()
 
