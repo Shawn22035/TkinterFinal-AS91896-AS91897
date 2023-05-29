@@ -4,20 +4,14 @@ import sqlite3
 
 root = Tk()
 root.geometry("500x500")
+root.resizable(False,False)
 root.title("Julie's Party Hire!")
 
-# Creating Database
+# Creating/Connecting a Database
 conn = sqlite3.connect('hires.db')
 
 # Creating a Cursor
 c= conn.cursor()
-
-c.execute(""" CREATE TABLE hires (
-    full_name text,
-    reciept integer,
-    item text
-    )
-    """)
 
 Simple=Label(text="something just a test or something im not too sure tbh").grid(column=2,row=1)
 
@@ -25,7 +19,7 @@ Simple=Label(text="something just a test or something im not too sure tbh").grid
 def newpage():
 
     secondpage = Toplevel(root)
-    secondpage.geometry("500x500")
+    secondpage.geometry("550x250")
     secondpage.resizable(False,False)
     secondpage.title("Julie's Party Hire!")
 
@@ -34,52 +28,50 @@ def newpage():
 
 
 
-        fullname = namegrab.get()
+        fullname = name.get()
 
         if fullname.isalpha() == False:
-            messagebox.showerror("Error", "Please only use numbers in name")
+            messagebox.showerror("Error", "Please Only Input Letters for Name")
             
         try:
-            reciept = int(barcodeinp.get())
+            reciept = int(recieptinp.get())
         except: 
-            messagebox.showerror("Error", "Please Input Numbers for Narcode")
+            messagebox.showerror("Error", "Please Only Input Numbers for Barcode")
 
         item = choices.get()
 
         if item=="...":
-            messagebox.showerror("Item Choice", "Please select hired item")       
+            messagebox.showerror("Item Choice", "Please select hired item")
+
+        try:
+            numhired = int(hiredamt.get()) 
+        except:
+            messagebox.showerror("Error","Please Only Input Numbers for Amount Hired")   
+
 #Closes the input page
     def page1done():
         secondpage.destroy()
     
 #Labels and Input boxes
-    something=Label(secondpage,
-                    text="something",
-                    font='bold').grid(column=2,row=1)
 
-    name=Label(secondpage, 
-                  text="Name:").grid(column=1,row=2, padx=60,pady=30, sticky=W)
+    Label(secondpage,
+                text="Julie's Party Hire",
+                font='bold').place(relx=0.5,rely=0.03,anchor=CENTER)
 
-    namegrab=Entry(secondpage)
-    namegrab.grid(column=1,row=3)
+    Label(secondpage, 
+                text="Name:").grid(column=1,row=2, padx=60,pady=30, sticky=W)
 
-    barcode=Label(secondpage,
-                    text="Barcode No.").grid(column=2,row=2)
+    name=Entry(secondpage)
+    name.grid(column=1,row=3)
+
+    Label(secondpage,
+                text="Barcode No.").grid(column=2,row=2)
 
     
-    barcodeinp=Entry(secondpage)
-    barcodeinp.grid(column=2,row=3)
+    recieptinp=Entry(secondpage)
+    recieptinp.grid(column=2,row=3)
 
-    nameprint=Button(secondpage,
-                     text="print",
-                     command=done).grid(column=1,row=4) 
-    
-    #Button that input window
-    somebutton=Button(secondpage,
-                        text="Return!",
-                        command=page1done).grid(column=3,row=4)
-    
-#Dropdown box to select what item was hired
+    #Dropdown box to select what item was hired
     choices= StringVar()
     choices.set("...")
 
@@ -88,15 +80,33 @@ def newpage():
 
     hired = OptionMenu(secondpage, choices,
                     "...","Spoon","Fork","Plates","Hats","Candles","Confetti").grid(column=3,row=3,padx=30,pady=30)
+    
+    Label(secondpage,
+                    text="Amount Hired").grid(column=4,row=2)
+    
+    hiredamt=Entry(secondpage)
+    hiredamt.grid(column=4,row=3)
 
 
+
+
+
+    nameprint=Button(secondpage,
+                     text="print",
+                     command=done).grid(column=2,row=4) 
+    
+    #Button that input window
+    somebutton=Button(secondpage,
+                        text="Return!",
+                        command=page1done).grid(column=3,row=4)
+    
     
 #Variable that opens the output window
 def threepage(): 
     thirdpage =Toplevel(root)  
     thirdpage.geometry("500x500")
 
-    another=Label(thirdpage,
+    Label(thirdpage,
                   text="something else").grid(column=1,row=1)
 
 #Buttons that direct to input & output windows
