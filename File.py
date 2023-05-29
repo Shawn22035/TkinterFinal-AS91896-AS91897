@@ -1,11 +1,23 @@
 from tkinter import *
 from tkinter import messagebox
+import sqlite3
 
 root = Tk()
 root.geometry("500x500")
 root.title("Julie's Party Hire!")
 
-var1=something.get()
+# Creating Database
+conn = sqlite3.connect('hires.db')
+
+# Creating a Cursor
+c= conn.cursor()
+
+c.execute(""" CREATE TABLE hires (
+    full_name text,
+    reciept integer,
+    item text
+    )
+    """)
 
 Simple=Label(text="something just a test or something im not too sure tbh").grid(column=2,row=1)
 
@@ -19,6 +31,8 @@ def newpage():
 
 #Collecting data and outputting error messages
     def done():
+
+
 
         fullname = namegrab.get()
 
@@ -46,13 +60,15 @@ def newpage():
     name=Label(secondpage, 
                   text="Name:").grid(column=1,row=2, padx=60,pady=30, sticky=W)
 
-    namegrab=Entry(secondpage).grid(column=1,row=3)
+    namegrab=Entry(secondpage)
+    namegrab.grid(column=1,row=3)
 
     barcode=Label(secondpage,
                     text="Barcode No.").grid(column=2,row=2)
 
     
-    barcodeinp=Entry(secondpage).grid(column=2,row=3)
+    barcodeinp=Entry(secondpage)
+    barcodeinp.grid(column=2,row=3)
 
     nameprint=Button(secondpage,
                      text="print",
@@ -67,7 +83,7 @@ def newpage():
     choices= StringVar()
     choices.set("...")
 
-    itemhire=Label(secondpage, 
+    Label(secondpage, 
                     text="Item Hired").grid(column=3,row=2)
 
     hired = OptionMenu(secondpage, choices,
@@ -85,16 +101,17 @@ def threepage():
 
 #Buttons that direct to input & output windows
 
-something = Entry(root).grid(column=1,row=3)
 
-somethingbut=Button(root, command=get)
-
-somethinge = Label(root, text=obj.get("var1")).grid(column=3,row=2)
 
 page = Button(text="Heres a button for a page",command=newpage).grid(column=1,row=2)
 
 page2 = Button(text="This is a second page",command=threepage).grid(column=2,row=2)
 
+# Commiting any changes
+conn.commit()
+
+# Closing the Database
+conn.close()
 
 root.mainloop()
 
