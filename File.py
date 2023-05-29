@@ -13,6 +13,18 @@ conn = sqlite3.connect('hires.db')
 # Creating a Cursor
 c= conn.cursor()
 
+#Creating a Table
+
+'''
+c.execute(""" CREATE TABLE hired (
+    fullname text,
+    reciept integer,
+    item text,
+    amt integer
+    )
+    """)
+'''
+
 Simple=Label(text="something just a test or something im not too sure tbh").grid(column=2,row=1)
 
 #Code that opens a new 500x500 input window titled Julie's Party Hire
@@ -26,7 +38,23 @@ def newpage():
 #Collecting data and outputting error messages
     def done():
 
+        # Creating/Connecting a Database
+        conn = sqlite3.connect('hires.db')
+        # Creating a Cursor
+        c= conn.cursor()
 
+        c.execute("INSERT INTO hired VALUES (:fullname, :reciept, :item, :numhired)",
+                  {
+                      "fullname":name.get(),
+                      "reciept":recieptinp.get(),
+                      "item":choices.get(),
+                      "numhired":hiredamt.get()
+                  })
+
+        # Commiting any changes
+        conn.commit()
+        # Closing the Database
+        conn.close()
 
         fullname = name.get()
 
@@ -87,10 +115,6 @@ def newpage():
     hiredamt=Entry(secondpage)
     hiredamt.grid(column=4,row=3)
 
-
-
-
-
     nameprint=Button(secondpage,
                      text="print",
                      command=done).grid(column=2,row=4) 
@@ -106,20 +130,30 @@ def threepage():
     thirdpage =Toplevel(root)  
     thirdpage.geometry("500x500")
 
-    Label(thirdpage,
-                  text="something else").grid(column=1,row=1)
+    conn = sqlite3.connect("hires.db")
+    c = conn.cursor()
+
+    c.execute("SELECT *, oid FROM hired")
+    hirees = c.fetchall()
+    
+    print_hirees = ''
+    for hiree in hirees:
+        print_hirees += str(hiree[0]) + "\t" + str(hiree[1]) + "\t" + str(hiree[2]) + "\t" + str(hiree[3]) + "\t" + str(hiree[4]) + "\n"
+
+    printhired = Label(thirdpage, text=print_hirees)
+    printhired.grid(column=1, row=1, columnspan=6)
+
+    conn.commit()
+    conn.close()
+    
+
 
 #Buttons that direct to input & output windows
-
-
-
 page = Button(text="Heres a button for a page",command=newpage).grid(column=1,row=2)
-
 page2 = Button(text="This is a second page",command=threepage).grid(column=2,row=2)
 
 # Commiting any changes
 conn.commit()
-
 # Closing the Database
 conn.close()
 
