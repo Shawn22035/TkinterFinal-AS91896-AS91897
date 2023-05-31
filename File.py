@@ -27,7 +27,16 @@ c.execute(""" CREATE TABLE hired (
 '''
 
 # Main Window Title
-Label(text="Julie's Party Hire", font='bold').grid(column=2,row=0)
+logo = Image.open("C:/Users/lee_s/Downloads/logo-PhotoRoom.png")
+resize_logo=logo.resize((240,180))
+img = ImageTk.PhotoImage(resize_logo)
+logo_label = Label(image=img)
+logo_label.image = img
+logo_label.place(rely=0.0001, relx=0.3)
+
+# Command to terminate program
+def kill():
+    root.destroy()
 
 # Code that opens a new 500x500 input window titled Julie's Party Hire
 def inputpage():
@@ -36,12 +45,54 @@ def inputpage():
     secondpage.resizable(False,False)
     secondpage.title("Julie's Party Hire!")
 
+    # Bringing input window in front of others
+    def lift_s():
+        secondpage.lift()
+        secondpage.after(1000,lift_s)
+
 # Collecting data and outputting error messages
     def done():
+
+        # Making sure that the name is only a-z & making sure there is a name
+        fullname = name.get()
+        if fullname == "":
+            messagebox.showerror("Error", "Please Input a Name")
+            lift_s()
+            return
+        
+        if fullname.isalpha() == False:
+            messagebox.showerror("Error", "Please Only Input Letters for Name")
+            lift_s()
+            return
+        
+        # Making sure that the reciept number is an integer
+        try:
+            reciept = int(recieptinp.get())
+        except: 
+            messagebox.showerror("Error", "Please Only Input Numbers for Barcode")
+            lift_s()
+            return
+
+        # Making sure that an item is selected in the choice box
+        item = choices.get()
+        if item=="...":
+            messagebox.showerror("Item Choice", "Please select hired item")
+            lift_s()
+            return
+
+        # Making sure that the amount hired is an integer
+        try:
+            numhired = int(hiredamt.get()) 
+        except:
+            messagebox.showerror("Error","Please Only Input Numbers for Amount Hired") 
+            lift_s()
+            return  
+        
+        # Connecting to SQLite
         conn = sqlite3.connect('hires.db')
         c= conn.cursor()
 
-        # 
+        # Inserting values into Database
         c.execute("INSERT INTO hired VALUES (:fullname, :reciept, :item, :numhired)",
                   {
                       "fullname":name.get(),
@@ -50,35 +101,9 @@ def inputpage():
                       "numhired":hiredamt.get()
                   })
 
-        
+        # Cutting Connection from Database
         conn.commit()
         conn.close()
-
-        # Making sure that the name is only a-z
-        fullname = name.get()
-        if fullname.isalpha() == False:
-            messagebox.showerror("Error", "Please Only Input Letters for Name")
-            return
-            
-        # Making sure that the reciept number is an integer
-        try:
-            reciept = int(recieptinp.get())
-        except: 
-            messagebox.showerror("Error", "Please Only Input Numbers for Barcode")
-            return
-
-        # Making sure that an item is selected in the choice box
-        item = choices.get()
-        if item=="...":
-            messagebox.showerror("Item Choice", "Please select hired item")
-            return
-
-        # Making sure that the amount hired is an integer
-        try:
-            numhired = int(hiredamt.get()) 
-        except:
-            messagebox.showerror("Error","Please Only Input Numbers for Amount Hired") 
-            return  
 
         # Resetting the page for new inputs
         secondpage.destroy()
@@ -88,16 +113,24 @@ def inputpage():
     def page1done():
         secondpage.destroy()
 
+    # Empty Label to add space from top
+    Label(secondpage,
+          text="",
+          font=("bold",20)).grid(column=1,row=1)
+    
     # Label & Input box for name input
     Label(secondpage, 
-                text="Name:").grid(column=1,row=2, padx=60,pady=30, sticky=W)
+                text="Name",
+                font=("bold",13)).grid(column=1,row=2, padx=40,pady=10, sticky=W)
 
     name=Entry(secondpage)
-    name.grid(column=1,row=3)
+    name.grid(column=1,row=3,padx=(10,10))
 
     # Label & Input box for reciept number
     Label(secondpage,
-                text="Reciept No.").grid(column=2,row=2)
+                text="Reciept Number",
+                font=("bold",13),
+                padx=20).grid(column=2,row=2)
 
     recieptinp=Entry(secondpage)
     recieptinp.grid(column=2,row=3)
@@ -107,29 +140,35 @@ def inputpage():
     choices.set("...")
 
     Label(secondpage, 
-                    text="Item Hired").grid(column=3,row=2)
+                    text="Item Hired",
+                font=("bold",13)).grid(column=3,row=2)
 
     hired = OptionMenu(secondpage, choices,
                     "...","Spoon","Fork","Plates","Hats","Candles","Confetti")
     hired.config(width=6)
-    hired.grid(column=3,row=3,padx=30, pady=30)
+    hired.grid(column=3,row=3,padx=(10, 30), pady=30)
     
     # Label & Input box for amount hired
     Label(secondpage,
-                    text="Amt Hired").grid(column=4,row=2)
+                    text="Amount Hired",
+                    font=("bold",13)).grid(column=4,row=2)
     
     hiredamt=Entry(secondpage)
     hiredamt.grid(column=4,row=3)
 
     # Button that runs command done, collects information and prints in output page
     nameprint=Button(secondpage,
-                     text="print",
-                     command=done).grid(column=2,row=4) 
+                     text="Print",
+                     command=done,
+                     bg="#d1d0cd",
+                     width=20, height=2).place(rely=0.8, relx=0.2)
     
     #Button that closes the input window
     somebutton=Button(secondpage,
-                        text="Return!",
-                        command=page1done).grid(column=3,row=4)
+                        text="Return",
+                        command=page1done,
+                        bg="#d1d0cd",
+                        width=20, height=2).place(rely=0.8, relx=0.6)
     
     
 # Command that opens the output window
@@ -138,10 +177,27 @@ def outputpage():
     thirdpage.resizable(False, False)  
     thirdpage.geometry("570x250")
    
-    # Command that deletes row from Database
+   # Command that brings output window to front
+    def lift_w():
+        thirdpage.lift()
+        thirdpage.after(1000,lift_w)
+
+    # Deleting data from Database
     def remove():
+
+        # Making sure that the input for Order ID is an integer
+        try:
+            delete_value = int(delinp.get())
+        except:
+            messagebox.showerror("Error","Please Only Input Numbers for Order ID") 
+            lift_w()
+            return   
+
+        # Connecting to SQLite
         conn =sqlite3.connect('hires.db')
         c= conn.cursor()
+
+        # Deleting data from Database using Order ID
         c.execute("DELETE from hired WHERE oid= " + delinp.get())
         delinp.delete(0, END)
         conn.commit()
@@ -161,14 +217,12 @@ def outputpage():
     # Turning Database inputs into tuple
     hirees = c.fetchall()
     
-    Label(thirdpage, text="Julie's Party Hire", font='bold').place(relx=0.5,rely=0.03,anchor=CENTER)
-    
     # Label titles for information table
-    Label(thirdpage,text="NAME" + "\t", font=("bold",13)).grid(column=0,row=0, padx=(10,0))
-    Label(thirdpage,text="RECIEPT NUM" + "\t", font=("bold",13)).grid(column=1,row=0)
-    Label(thirdpage,text=" ITEM" + "\t", font=("bold",13)).grid(column=2,row=0)
-    Label(thirdpage,text="       AMOUNT " + "\t" , font=("bold",13)).grid(column=3,row=0)
-    Label(thirdpage,text="ORDER ID", font=("bold",13)).grid(column=4,row=0)
+    Label(thirdpage,text="NAME" + "\t", font=("bold",13),bg="#d1d0cd",relief="raised").grid(column=0,row=0, padx=(10,0))
+    Label(thirdpage,text="RECIEPT NUM" + "\t", font=("bold",13),bg="#d1d0cd",relief="raised").grid(column=1,row=0)
+    Label(thirdpage,text=" ITEM" + "\t", font=("bold",13),bg="#d1d0cd",relief="raised").grid(column=2,row=0)
+    Label(thirdpage,text="       AMOUNT " + "\t" , font=("bold",13),bg="#d1d0cd",relief="raised").grid(column=3,row=0)
+    Label(thirdpage,text="ORDER ID", font=("bold",13),bg="#d1d0cd",relief="raised").grid(column=4,row=0)
 
     # Print each tuple on a page
     print_hirees = ''
@@ -181,13 +235,13 @@ def outputpage():
         Label(thirdpage, text=str(hiree[4])).grid(column=4, row=i + 1,)
 
     # What order needs to be deleted
-    Label(thirdpage, text="Enter Order ID Number").grid(column=1, row=i+4,sticky=W)
+    Label(thirdpage, text="Enter Order ID Number",font=("bold",13)).place(rely=0.7, relx= 0.05)
 
-    delinp=Entry(thirdpage)
-    delinp.grid(column=1,row=i+5)
+    delinp=Entry(thirdpage,width=20,font=("Arial, 23"))
+    delinp.place(rely=0.8,relx=0.05)
 
     # Runs remove command that deletes row
-    delbut=Button(thirdpage, text= "Delete", command=remove).grid(column=3, row=i+5, sticky=E)
+    delbut=Button(thirdpage, text= "Delete", command=remove, width=20, height=2).place(rely=0.8,relx=0.7)
 
     printhired = Label(thirdpage, text=print_hirees)
     printhired.grid(column=1, row=1, columnspan=6)
@@ -195,16 +249,10 @@ def outputpage():
     conn.commit()
     conn.close()
 
-#Buttons that direct to input & output windows
-logo = Image.open("C:/Users/lee_s/Downloads/logo-PhotoRoom.png")
-resize_logo=logo.resize((170,150))
-img = ImageTk.PhotoImage(resize_logo)
-logo_label = Label(image=img)
-logo_label.image = img
-logo_label.grid(column=2, row=1,pady=(10,0), padx=(0,20))
-
-page = Button(text="Input Page",command=inputpage, width = 20, height= 2).grid(column=1,row=2, sticky=W, padx=27)
-page2 = Button(text="Output Page",command=outputpage, width = 20, height = 2).grid(column=3,row=2, sticky=E)
+#Buttons that direct to input, output & close windows
+page = Button(text="Input Page",command=inputpage, bg="#d1d0cd",width = 20, height= 2).place(rely=0.8, relx=0.1)
+page2 = Button(text="Output Page",command=outputpage, bg="#d1d0cd",width = 20, height = 2).place(rely=0.8,relx= 0.375)
+close = Button(text="Close Window", command=kill, bg="#d1d0cd",width=20, height = 2).place(rely=0.8, relx= 0.65)
 
 # Commiting any changes
 conn.commit()
